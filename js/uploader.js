@@ -17,39 +17,28 @@
     window.UploaderConfig = {
         max: 4,
         placeHolder: "../images/placeholder",
-        addButton: '<a class="btn btn-sm btn-success uploader-add"  title="Add" href="javascript:void(0)">' +
-        '<i class="fa fa-plus"></i></a>',
-        saveAllButton: '<a class="btn btn-sm btn-primary uploader-save-all"  title="Save All" href="javascript:void(0)">' +
-        '<i class="fa fa-save"></i></a>',
-        removeAllButton: '<a class="btn btn-sm btn-danger uploader-remove-all" title="Remove All" href="javascript:void(0)">' +
-        '<i class="fa fa-save"></i></a>',
-        saveButton: '<a class="btn btn-sm btn-primary uploader-save"  href="javascript:void(0)">' +
-        '<i class="fa fa-save"></i></a>',
-        removeButton: '<a class="btn btn-sm btn-danger uploader-remove" href="javascript:void(0)">' +
-        '<i class="fa fa-save"></i></a>',
-        uploader: '<table class="table uploader">{{commandRow}}</table>',
-        commandRow: '<tr class="uploader-command-row">' +
-        '<td style="width:200px">{{addButton}} &nbsp; {{saveAllButton}} &nbsp; {{removeAllButton}}</td>' +
-        '<td></td><td style="width:100px"></td></tr>',
-        imageRow: '<tr>{{rowElements}}</tr>',
-        imageContainer: '<td>{{image}}</td>',
-        image: '<img class="img-responsive img-thumbnail"/>',
-        inputContainer: '<td><div class="input-group input-group-sm">{{input}}</div></td>',
-        textInput: '<input type="text" class="input-sm"/> ',
-        numberInput: '<input type="number" class="input-sm"/> ',
-        fileInput: '<div class="btn-file">' +
-        '<a class="btn btn-sm btn-primary"><i class="fa fa-folder-open"></i> </a> ' +
-        '<input type="file"/> </div> ',
-        longTextInput: '<textarea></textarea> ',
-        ckeditor: '<div contentEditable="true"></div>',
+        addButtonClass: 'btn btn-sm btn-success uploader-add',
+        addButtonText: '<i class="fa fa-plus"></i> Add',
+        saveAllButtonClass: 'btn btn-sm btn-primary',
+        saveAllButtonText: '<i class="fa fa-save"></i>',
+        removeAllButtonClass: 'btn btn-sm btn-danger',
+        removeAllButtonText: '<i class="fa fa-remove"></i>',
+        saveButtonClass: '<a class="btn btn-sm btn-primary uploader-save"  href="javascript:void(0)">',
+        saveButtonText: '<i class="fa fa-save"></i></a>',
+        removeButtonClass: 'btn btn-sm btn-danger',
+        removeButtonText: '<i class="fa fa-remove"></i>',
+        uploaderClass: 'table',
+        commandRowClass: '',
+        imageRowClass: '',
+        imageContainerClass: '',
+        loadingImage: '<i class="fa fa-spin fa-spinner fa-3x"></i>',
+        imageClass: 'img-responsive img-thumbnail',
+        inputContainerClass: 'input-group input-group-sm',
+        textInputClass: 'input-sm',
+        numberInputClass: 'input-sm',
+        fileInputClass: '',
+        longTextInputClass: '',
         set: function (settings) {
-            this.max = settings.max || this.max;
-            this.placeHolder = settings.placeHolder || this.placeHolder;
-            this.addButton = settings.addButton || this.addButton;
-            this.saveAllButton = settings.saveAllButton || this.saveAllButton;
-            this.removeAllButton = settings.removeAllButton || this.removeAllButton;
-            this.saveButton = settings.saveButton || this.saveButton;
-            this.removeButton = settings.removeButton || this.removeButton;
         }
     };
 
