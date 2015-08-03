@@ -39,10 +39,23 @@
         fileInputClass: '',
         longTextInputClass: '',
         set: function (settings) {
+        },
+        uploaders: [],
+        done: function (uploader_id, task_id) {
+            console.log([uploader_id, task_id]);
+            if (typeof this.uploaders[uploader_id] != 'undefined'
+                && typeof this.uploaders[uploader_id].tasks[task_id] != 'undefined') {
+
+                var task = this.uploaders[uploader_id].tasks[task_id];
+                task.done();
+
+            }
         }
     };
 
-    window.Uploader = function ($element, settings) {
+
+    $.fn.uploader = function (settings) {
+        var $element = $(this);
         var uc = UploaderConfig;
         UploaderConfig.$element = $element;
 
@@ -51,9 +64,70 @@
             $table: null,
             $commandRow: null,
             settings: {url: 'upload.html'},
-            queue: [],
+            tasks: [],
             rowCount: 0,
 
+            addToQueue: function ($row) {
+                var task = {$row: $row};
+                task.done = function () {
+                    console.log(this.$row)
+                    Uploader.doneUploading(this.$row);
+                };
+                Uploader.tasks.push(task)
+                Uploader.uploadImage(task);
+            },
+            uploadImage: function (task) {
+
+                var $iframe = Uploader.createIframe(task.$row);
+
+                var files = task.$row
+                    .find('td:first-child input[type=file]').prop('files')
+
+                var $form = $iframe.contents().find('body')
+                    .append('<form method="post" enctype="multipart/form-data" ></form>')
+                    .children(':last-child')
+                    .attr('action', Uploader.settings.url);
+
+                $form
+                    .append('<input type="file" name="upload"/>')
+                    .children(':last-child')
+                    .prop('files', files)
+
+                // $.post({
+                //     url:'uploader.html',
+                //     method:'post',
+                //     success:function(e){
+                //         console.log(e)
+                //     }
+                // })
+                $form.submit(function (e) {
+                    console.log(e.target)
+                }).submit();
+                console.log($form)
+            },
+            createIframe: function ($row) {
+                this.rowCount++;
+                return $row
+                    .find('td:first-child')
+                    .append('<div class="progress"></div>')
+                    .children(':last-child')
+                    .attr('id', 'progress_' + this.rowCount)
+                    .end()
+                    .append('<iframe src=""><html></html></iframe>')
+                    .children(':last-child')
+                    .attr('name', 'image_frame_' + this.rowCount)
+                    .attr('id', 'image_frame_' + this.rowCount);
+            },
+            fileSelected: function ($row) {
+                Uploader.addToQueue($row);
+            },
+            cancelUpload: function () {
+            },
+            doneUploading: function ($row) {
+                $row.remove();
+            },
+            saveUpload: function () {
+            },
             addRow: function () {
 
                 //Creating the row,
@@ -183,8 +257,11 @@
                     //Go around clicking all save buttons
                     $table.find('.uploader-save').click();
                 });
+
+                UploaderConfig.uploaders.push(Uploader);
             }
-        }
+
+        };
 
         Uploader.construct();
         return $(this);
