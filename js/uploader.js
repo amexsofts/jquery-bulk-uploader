@@ -44,133 +44,156 @@
 
     window.Uploader = function ($element, settings) {
         var uc = UploaderConfig;
+        UploaderConfig.$element = $element;
 
-        //create the table
-        var $table = $element
-            .append('<table>')
-            .children(':last-child')
-            .addClass(uc.uploaderClass)
-            .append('<tbody>')
-            .children(':last-child');
+        var Uploader = {
+            $element: $element,
+            $table: null,
+            $commandRow: null,
+            settings: {url: 'upload.html'},
+            queue: [],
+            rowCount: 0,
 
-        //create the command row
-        var $commandRow = $table.append('<tr>').children(':last-child');
-        $commandRow.addClass(uc.commandRowClass);
-        $commandRow.addClass('uploader-command-row');
+           },
+            addRow: function () {
 
-        //command buttons
-        $commandRow
-            .append('<td>')
-            .children(':last-child')
-            .css({width: '200px'})
-            .append('<a href="javascript:;" class="uploader-add">' + uc.addButtonText + '</a> &nbsp;')
-            .children(':last-child').addClass(uc.addButtonClass)
-            .end()
-            .append('<a href="javascript:;" class="uploader-save-all">' + uc.saveAllButtonText + '</a> &nbsp;')
-            .children(':last-child').addClass(uc.saveAllButtonClass)
-            .end()
-            .append('<a href="javascript:;" class="uploader-remove-all">' + uc.removeAllButtonText + '</a> &nbsp;')
-            .children(':last-child').addClass(uc.removeAllButtonClass)
-            .end();
+                //Creating the row,
+                var $newRow = Uploader.$table.find('.uploader-command-row')
+                    .after('<tr>')
+                    .next('tr');
 
+                //add the columns needed
+                $newRow
+                    .append('<td>')
+                    .children(':last-child')
+                    .append('<div class="loading">')
+                    .children(':last-child')
+                    .append(uc.loadingImage)
+                    .end()
+                    .append('<input type="file" class="hide"/>')
+                    .end()
+                    .append('<td>')
+                    .children(':last-child')
+                    .append('<a href="javascript:;" class="uploader-save"></a> &nbsp;')
+                    .children(':last-child')
+                    .addClass(uc.saveButtonClass)
+                    .append(uc.saveButtonText)
+                    .attr('disabled', true)
+                    .end()
+                    .append('<a href="javascript:;" class="uploader-remove"></a>')
+                    .children(':last-child')
+                    .addClass(uc.removeButtonClass)
+                    .append(uc.removeButtonText);
 
-        var $add = $commandRow.find('.uploader-add');
-        var $saveAll = $commandRow.find('.uploader-save-all');
-        var $removeAll = $commandRow.find('.uploader-remove-all');
-        var rowCount = 0;
+                if (Uploader.settings.inputs) {
+                    for (c in Uploader.settings.inputs) {
+                        var input = Uploader.settings.inputs[c]
 
-        $add.click(function (e) {
-            //Creating the row,
-            var $newRow = $table.find('.uploader-command-row')
-                .after('<tr>')
-                .next('tr');
+                        switch (input.type) {
+                            case 'text':
+                                var $input = $newRow
+                                    .append('<td>')
+                                    .children(':last-child')
+                                    .append('<div>')
+                                    .children(':last-child')
+                                    .addClass(uc.inputContainerClass)
+                                    .append('<input type="text"/>')
+                                    .children(':last-child')
+                                    .addClass(uc.textInputClass);
 
-            //add the columns needed
-            $newRow
-                .append('<td>')
-                .children(':last-child')
-                .append('<div class="loading">')
-                .children(':last-child')
-                .append(uc.loadingImage)
-                .end()
-                .append('<input type="file" class="hide"/>')
-                .end()
-                .append('<td>')
-                .children(':last-child')
-                .append('<a href="javascript:;" class="uploader-save"></a> &nbsp;')
-                .children(':last-child')
-                .addClass(uc.saveButtonClass)
-                .append(uc.saveButtonText)
-                .end()
-                .append('<a href="javascript:;" class="uploader-remove"></a>')
-                .children(':last-child')
-                .addClass(uc.removeButtonClass)
-                .append(uc.removeButtonText);
+                                break;
+                        }
 
-
-            var inputs = '';
-
-            if (settings.inputs) {
-                for (c in settings.inputs) {
-                    var input = settings.inputs[c]
-
-                    switch (input.type) {
-                        case 'text':
-                            var $input = $newRow
-                                .append('<td>')
-                                .children(':last-child')
-                                .append('<div>')
-                                .children(':last-child')
-                                .addClass(uc.inputContainerClass)
-                                .append('<input type="text"/>')
-                                .children(':last-child')
-                                .addClass(uc.textInputClass);
-
-                            break;
-                    }
-
-                    $input.attr('id', input.name)
-                    $input.attr('name', input.name)
-                    if ($.isFunction(input.callback)) {
-                        input.callback($input);
+                        $input.attr('id', input.name)
+                        $input.attr('name', input.name)
+                        if ($.isFunction(input.callback)) {
+                            input.callback($input);
+                        }
                     }
                 }
-            }
 
-            //create the handlers
+                //create the handlers
 
-            //remove handler
-            $newRow.find('.uploader-remove').click(function () {
+                //remove handler
+                $newRow.find('.uploader-remove').click(this.removeRow);
+
+                //when file is selected, que the image upload
+                $newRow.find('input[type=file]').change(function () {
+                    Uploader.fileSelected($newRow)
+                }).click();
+
+                //save handler
+                $newRow.find('.save').click(function () {
+                    //saveUpload();
+                });
+
+                //execute preparations
+
+
+                return false;
+            },
+            removeRow: function () {
                 //cancelUpload();
                 $newRow.remove();
                 return false;
-            });
+            },
 
-            //when file is selected, que the image upload
-            $newRow.find('input[type=file]').change(function () {
-                //addToQueue();
-            });
+            construct: function () {
+                //create the table
+                var $table = $element
+                    .append('<table>')
+                    .children(':last-child')
+                    .addClass(uc.uploaderClass)
+                    .append('<tbody>')
+                    .children(':last-child');
 
-            //save handler
-            $newRow.find('.save').click(function () {
-                //saveUpload();
-            });
+                this.$element = $element;
+                this.$table = $table;
 
-            //execute preparations
+                //create the command row
+                var $commandRow = $table.append('<tr>').children(':last-child');
+                $commandRow.addClass(uc.commandRowClass);
+                $commandRow.addClass('uploader-command-row');
+
+                this.$commandRow = $commandRow;
+
+                //command buttons
+                $commandRow
+                    .append('<td>')
+                    .children(':last-child')
+                    .css({width: '200px'})
+                    .append('<a href="javascript:;" class="uploader-add">' + uc.addButtonText + '</a> &nbsp;')
+                    .children(':last-child').addClass(uc.addButtonClass)
+                    .end()
+                    .append('<a href="javascript:;" class="uploader-save-all">' + uc.saveAllButtonText + '</a> &nbsp;')
+                    .children(':last-child').addClass(uc.saveAllButtonClass)
+                    .end()
+                    .append('<a href="javascript:;" class="uploader-remove-all">' + uc.removeAllButtonText + '</a> &nbsp;')
+                    .children(':last-child').addClass(uc.removeAllButtonClass)
+                    .end();
 
 
-            return false;
-        });
+                var $add = $commandRow.find('.uploader-add');
+                var $saveAll = $commandRow.find('.uploader-save-all');
+                var $removeAll = $commandRow.find('.uploader-remove-all');
+                var rowCount = 0;
 
-        $saveAll.click(function () {
-            //Go around clicking all save buttons
-            $table.find('.uploader-save').click();
-        });
+                $add.click(this.addRow);
+
+                $saveAll.click(function () {
+                    //Go around clicking all save buttons
+                    $table.find('.uploader-save').click();
+                });
+            }
+        }
+
+        Uploader.construct();
+        return $(this);
     };
 
     $(document).ready(function () {
         //create and attach an Uploader to the body
-        var u = new Uploader($('body').first(),
+        $('body').first().uploader(
             {
                 inputs: [{
                     name: 'description', type: 'text', callback: function ($element) {
