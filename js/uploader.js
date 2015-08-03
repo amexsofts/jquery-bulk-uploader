@@ -64,7 +64,7 @@
             $table: null,
             $commandRow: null,
             settings: {url: 'upload.html'},
-            tasks: [],
+            tasks: [], //TODO: Add a task scheduling and starting mechanism
             rowCount: 0,
 
             addToQueue: function ($row) {
@@ -73,37 +73,43 @@
                     console.log(this.$row)
                     Uploader.doneUploading(this.$row);
                 };
-                Uploader.tasks.push(task)
+                Uploader.tasks.push(task);
                 Uploader.uploadImage(task);
             },
             uploadImage: function (task) {
-
-                var $iframe = Uploader.createIframe(task.$row);
-
                 var files = task.$row
-                    .find('td:first-child input[type=file]').prop('files')
+                    .find('td:first-child input[type=file]').prop('files');
 
-                var $form = $iframe.contents().find('body')
-                    .append('<form method="post" enctype="multipart/form-data" ></form>')
-                    .children(':last-child')
-                    .attr('action', Uploader.settings.url);
+                if (typeof FormData == 'function') {
 
-                $form
-                    .append('<input type="file" name="upload"/>')
-                    .children(':last-child')
-                    .prop('files', files)
+                    var formData = new FormData();
+                    formData.append('upload', files[0]);
 
-                // $.post({
-                //     url:'uploader.html',
-                //     method:'post',
-                //     success:function(e){
-                //         console.log(e)
-                //     }
-                // })
-                $form.submit(function (e) {
-                    console.log(e.target)
-                }).submit();
-                console.log($form)
+                    $.ajax({
+                        method: 'POST',
+                        url: 'upload.html',
+                        contentType: false,
+                        processData: false,
+                        data: formData,
+                        success: function (e) {
+                            $('body').append(e).children(":last-child").remove();
+                        }
+                    })
+                } else {
+                    var $iframe = Uploader.createIframe(task.$row);
+
+                    var $form = $iframe.contents().find('body')
+                        .append('<form method="post" enctype="multipart/form-data" ></form>')
+                        .children(':last-child')
+                        .attr('action', Uploader.settings.url);
+                    $form
+                        .append('<input type="file" name="upload"/>')
+                        .children(':last-child')
+                        .prop('files', files);
+                    $form.submit(function (e) {
+                        console.log(e.target)
+                    }).submit();
+                }
             },
             createIframe: function ($row) {
                 this.rowCount++;
