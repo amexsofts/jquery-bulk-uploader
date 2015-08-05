@@ -41,13 +41,13 @@
         set: function (settings) {
         },
         uploaders: [],
-        done: function (uploader_id, task_id) {
+        done: function (uploader_id, task_id, url, message) {
 
             if (typeof this.uploaders[uploader_id] != 'undefined'
                 && typeof this.uploaders[uploader_id].tasks[task_id] != 'undefined') {
 
                 var task = this.uploaders[uploader_id].tasks[task_id];
-                task.done();
+                task.done(url, message);
 
             }
         }
@@ -90,7 +90,7 @@
 
                     $.ajax({
                         method: 'POST',
-                        imageUploadUrl: Uploader.settings.imageUploadUrl,
+                        url: Uploader.settings.imageUploadUrl,
                         contentType: false,
                         processData: false,
                         data: formData,
