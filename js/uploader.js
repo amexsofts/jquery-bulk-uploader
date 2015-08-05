@@ -30,7 +30,7 @@
         uploaderClass: 'table table-striped table-condensed',
         commandRowClass: '',
         imageRowClass: '',
-        imageContainerClass: '',
+        imageContainerClass: 'thumbnail',
         loadingImage: '<div class="uploader-loading"><i class="fa fa-spin fa-spinner fa-3x"></i></div>',
         imageClass: 'img-responsive img-thumbnail',
         inputContainerClass: 'input-group input-group-sm',
@@ -69,8 +69,8 @@
 
             addToQueue: function ($row) {
                 var task = {$row: $row};
-                task.done = function () {
-                    Uploader.doneUploading(this.$row);
+                task.done = function (url, message) {
+                    Uploader.doneUploading(this.$row, url, message);
                 };
                 Uploader.tasks.push(task);
                 Uploader.uploadImage(task);
@@ -90,7 +90,7 @@
 
                     $.ajax({
                         method: 'POST',
-                        url: Uploader.settings.url,
+                        imageUploadUrl: Uploader.settings.imageUploadUrl,
                         contentType: false,
                         processData: false,
                         data: formData,
@@ -105,7 +105,7 @@
                     var $form = $iframe.contents().find('body')
                         .append('<form method="post" enctype="multipart/form-data" ></form>')
                         .children(':last-child')
-                        .attr('action', Uploader.settings.url);
+                        .attr('action', Uploader.settings.imageUploadUrl);
                     $form
                         .append('<input type="hidden" name="task" value="' + (Uploader.rowCount - 1) + '"/>')
                         .append('<input type="hidden" name="uploader" value="' + (0) + '"/>')
@@ -283,12 +283,17 @@
         //create and attach an Uploader to the body
         $('body').first().uploader(
             {
-                url: '//amanu/lar/public/images/temp_upload',
+                imageUploadUrl: '//amanu/lar/public/images/temp_upload',
+                saveUrl: '//amanu/lar/public/images/save',
                 inputs: [{
+                    label: 'Description',
                     name: 'description',
                     type: 'text',
                     callback: function ($element) {
 
+                    },
+                    value: function ($element) {
+                        return "Hello world";
                     }
                 }]
             });
