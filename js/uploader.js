@@ -133,10 +133,50 @@
             },
             cancelUpload: function () {
             },
-            doneUploading: function ($row) {
-                $row.remove();
+            doneUploading: function ($row, url, message) {
+                $row.children(':first-child') // this is the image cell
+                    .children('*') //remove everything
+                    .remove()
+                    .end()
+                    .prepend('<div>')
+                    .children(':first-child')
+                    .addClass(uc.imageContainerClass)
+                    .append('<img>')
+                    .children(':last-child')
+                    .attr('src', url);
+
+                $row.find('.uploader-save')
+                    .attr('disabled', false)
+                    .click(function () {
+                        Uploader.saveUpload($row, url, message)
+                    });
             },
-            saveUpload: function () {
+            saveUpload: function ($row, url, message) {
+                var values = {};
+                $row.find('.uploader-input-container')
+                    .each(function () {
+                        var $input = $(this).find('.uploader-input').first();
+                        if ($.isFunction($input.data('uploader-value'))) {
+                            values[$input.attr('id')] = ($input.data('uploader-value'))();
+                        } else {
+                            values[$input.attr('id')] = $input.data('uploader-value');
+                        }
+
+                    });
+                values.imageUploadUrl = url;
+                values.message = message;
+
+                $.ajax({
+                    method: 'POST',
+                    data: values,
+                    url: Uploader.settings.saveUrl,
+                    success: function (e) {
+                        $row.addClass('bg-success')
+                    },
+                    error: function (e) {
+                        $row.addClass('bg-danger')
+                    }
+                });
             },
             addRow: function () {
                 var rowId = Uploader.rowCount++;
