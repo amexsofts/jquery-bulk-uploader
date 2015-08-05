@@ -157,7 +157,7 @@
                     .each(function () {
                         var $input = $(this).find('.uploader-input').first();
                         if ($.isFunction($input.data('uploader-value'))) {
-                            values[$input.attr('id')] = ($input.data('uploader-value'))();
+                            values[$input.attr('id')] = ($input.data('uploader-value'))($input);
                         } else {
                             values[$input.attr('id')] = $input.data('uploader-value');
                         }
@@ -221,17 +221,45 @@
                             .children(':last-child')
                             .addClass(uc.inputContainerClass)
                             .addClass('uploader-input-container');
-
+                        var $input;
                         switch (input.type) {
                             case 'text':
-                                var $input = $inputContainer
+                                $input = $inputContainer
                                     .append('<label>' + input.label + '</label>')
                                     .children(':last-child')
+                                    .append('<br/>')
                                     .append('<input type="text"/>')
                                     .children(':last-child')
                                     .addClass('uploader-input')
                                     .addClass(uc.textInputClass);
-
+                                break;
+                            case 'hidden':
+                                $input = $inputContainer
+                                    .append('<label>' + input.label + '</label>')
+                                    .children(':last-child')
+                                    .append('<br/>')
+                                    .append('<input type="hidden"/>')
+                                    .children(':last-child')
+                                    .addClass('uploader-input')
+                                    .addClass(uc.textInputClass);
+                                break;
+                            case 'number':
+                                $input = $inputContainer
+                                    .append('<label>' + input.label + '</label>')
+                                    .children(':last-child')
+                                    .append('<br/>')
+                                    .append('<input type="number"/>')
+                                    .children(':last-child')
+                                    .addClass('uploader-input')
+                                    .addClass(uc.textInputClass);
+                                break;
+                            default:
+                                $input = $inputContainer
+                                    .append('<label>' + input.label + '</label>')
+                                    .children(':last-child')
+                                    .append(input.html)
+                                    .children(':last-child')
+                                    .addClass('uploader-input');
                                 break;
                         }
 
@@ -347,6 +375,16 @@
                     },
                     value: function ($element) {
                         return "Hello world";
+                    }
+                }, {
+                    label: 'Alt',
+                    name: 'alt',
+                    html: '<div contentEditable="true">Click Here To add a description</div>',
+                    callback: function ($element) {
+                        $element.addClass('alert-warning')
+                    },
+                    value: function ($element) {
+                        return $element.html();
                     }
                 }]
             });
