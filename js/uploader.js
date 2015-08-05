@@ -270,8 +270,8 @@
                                 return $input.val();
                             });
                         }
-                        $input.attr('id', input.name)
-                        $input.attr('name', input.name)
+                        $input.attr('id', input.name);
+                        $input.attr('name', input.name);
                         if ($.isFunction(input.callback)) {
                             input.callback($input);
                         }
@@ -359,38 +359,6 @@
         Uploader.construct();
         return $(this);
     };
-
-    $(document).ready(function () {
-        //create and attach an Uploader to the body
-        $('body').first().uploader(
-            {
-                imageUploadUrl: '//amanu/lar/public/images/temp_upload',
-                saveUrl: '//amanu/lar/public/images/save',
-                inputs: [{
-                    label: 'Description',
-                    name: 'description',
-                    type: 'text',
-                    callback: function ($element) {
-
-                    },
-                    value: function ($element) {
-                        return "Hello world";
-                    }
-                }, {
-                    label: 'Alt',
-                    name: 'alt',
-                    html: '<div contentEditable="true">Click Here To add a description</div>',
-                    callback: function ($element) {
-                        $element.addClass('alert-warning')
-                    },
-                    value: function ($element) {
-                        return $element.html();
-                    }
-                }]
-            });
-
-    })
-
 
 }(jQuery));
 
