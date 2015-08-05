@@ -42,7 +42,7 @@
         },
         uploaders: [],
         done: function (uploader_id, task_id) {
-            console.log([uploader_id, task_id]);
+
             if (typeof this.uploaders[uploader_id] != 'undefined'
                 && typeof this.uploaders[uploader_id].tasks[task_id] != 'undefined') {
 
@@ -63,14 +63,13 @@
             $element: $element,
             $table: null,
             $commandRow: null,
-            settings: {url: 'upload.html'},
+            settings: settings,
             tasks: [], //TODO: Add a task scheduling and starting mechanism
             rowCount: 0,
 
             addToQueue: function ($row) {
                 var task = {$row: $row};
                 task.done = function () {
-                    console.log(this.$row)
                     Uploader.doneUploading(this.$row);
                 };
                 Uploader.tasks.push(task);
@@ -84,15 +83,20 @@
 
                     var formData = new FormData();
                     formData.append('upload', files[0]);
+                    formData.append('uploader', 0);
+                    formData.append('task', Uploader.rowCount - 1);
+                    formData.append('callback', 'window.UploaderConfig.done');
+                    formData.append('ajax', true);
 
                     $.ajax({
                         method: 'POST',
-                        url: 'upload.html',
+                        url: Uploader.settings.url,
                         contentType: false,
                         processData: false,
                         data: formData,
-                        success: function (e) {
-                            $('body').append(e).children(":last-child").remove();
+                        success: function (e, f) {
+                            //append the response to the body, then remove it
+                            $('body').append('<script>').children(':last-child').append(e).remove();
                         }
                     })
                 } else {
@@ -103,16 +107,16 @@
                         .children(':last-child')
                         .attr('action', Uploader.settings.url);
                     $form
+                        .append('<input type="hidden" name="task" value="' + (Uploader.rowCount - 1) + '"/>')
+                        .append('<input type="hidden" name="uploader" value="' + (0) + '"/>')
+                        .append('<input type="hidden" name="callback" value="window.top.window.UploaderConfig.done"/>')
                         .append('<input type="file" name="upload"/>')
                         .children(':last-child')
                         .prop('files', files);
-                    $form.submit(function (e) {
-                        console.log(e.target)
-                    }).submit();
+                    $form.submit();
                 }
             },
             createIframe: function ($row) {
-                this.rowCount++;
                 return $row
                     .find('td:first-child')
                     .append('<div class="progress"></div>')
@@ -135,11 +139,13 @@
             saveUpload: function () {
             },
             addRow: function () {
+                var rowId = Uploader.rowCount++;
 
                 //Creating the row,
                 var $newRow = Uploader.$table.find('.uploader-command-row')
                     .after('<tr>')
-                    .next('tr');
+                    .next('tr')
+                    .attr('id', 'row_' + rowId);
 
                 //add the columns needed
                 $newRow
@@ -277,9 +283,12 @@
         //create and attach an Uploader to the body
         $('body').first().uploader(
             {
+                url: '//amanu/lar/public/images/temp_upload',
                 inputs: [{
-                    name: 'description', type: 'text', callback: function ($element) {
-                        console.log($element);
+                    name: 'description',
+                    type: 'text',
+                    callback: function ($element) {
+
                     }
                 }]
             });
