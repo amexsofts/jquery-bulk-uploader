@@ -87,6 +87,11 @@
                     formData.append('task', Uploader.rowCount - 1);
                     formData.append('callback', 'window.UploaderConfig.done');
                     formData.append('ajax', true);
+                    if (Uploader.settings.data) {
+                        for (c in Uploader.settings.data) {
+                            formData.append(c, Uploader.settings.data[c])
+                        }
+                    }
 
                     $.ajax({
                         method: 'POST',
@@ -106,6 +111,13 @@
                         .append('<form method="post" enctype="multipart/form-data" ></form>')
                         .children(':last-child')
                         .attr('action', Uploader.settings.imageUploadUrl);
+
+                    if (Uploader.settings.data) {
+                        for (c in Uploader.settings.data) {
+                            $form.append('<input type="hidden" name="' + c + '" value="' + (Uploader.settings.data[c]) + '"/>')
+                        }
+                    }
+
                     $form
                         .append('<input type="hidden" name="task" value="' + (Uploader.rowCount - 1) + '"/>')
                         .append('<input type="hidden" name="uploader" value="' + (0) + '"/>')
@@ -163,6 +175,12 @@
                         }
 
                     });
+
+                if (Uploader.settings.data) {
+                    for (c in Uploader.settings.data) {
+                        values[c] = Uploader.settings.data[c];
+                    }
+                }
                 values.imageUploadUrl = url;
                 values.message = message;
 
@@ -256,7 +274,6 @@
                             default:
                                 $input = $inputContainer
                                     .append('<label>' + input.label + '</label>')
-                                    .children(':last-child')
                                     .append(input.html)
                                     .children(':last-child')
                                     .addClass('uploader-input');
