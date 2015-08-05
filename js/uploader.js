@@ -172,23 +172,36 @@
 
                 if (Uploader.settings.inputs) {
                     for (c in Uploader.settings.inputs) {
-                        var input = Uploader.settings.inputs[c]
+                        var input = Uploader.settings.inputs[c];
+
+                        var $inputContainer = $newRow
+                            .append('<td>')
+                            .children(':last-child')
+                            .append('<div>')
+                            .children(':last-child')
+                            .addClass(uc.inputContainerClass)
+                            .addClass('uploader-input-container');
 
                         switch (input.type) {
                             case 'text':
-                                var $input = $newRow
-                                    .append('<td>')
+                                var $input = $inputContainer
+                                    .append('<label>' + input.label + '</label>')
                                     .children(':last-child')
-                                    .append('<div>')
-                                    .children(':last-child')
-                                    .addClass(uc.inputContainerClass)
                                     .append('<input type="text"/>')
                                     .children(':last-child')
+                                    .addClass('uploader-input')
                                     .addClass(uc.textInputClass);
 
                                 break;
                         }
 
+                        if (input.value) {
+                            $input.data('uploader-value', input.value);
+                        } else {
+                            $input.data('uploader-value', function () {
+                                return $input.val();
+                            });
+                        }
                         $input.attr('id', input.name)
                         $input.attr('name', input.name)
                         if ($.isFunction(input.callback)) {
